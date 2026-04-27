@@ -1,9 +1,11 @@
 public class QuantityMeasurementApp {
 
-    // Enum for units
+    // Enum with extended units (base: FEET)
     enum LengthUnit {
         FEET(1.0),
-        INCH(1.0 / 12.0);
+        INCH(1.0 / 12.0),
+        YARD(3.0),
+        CENTIMETER(0.0328084); // 1 cm = 0.0328084 feet
 
         private final double toFeet;
 
@@ -29,7 +31,6 @@ public class QuantityMeasurementApp {
             this.unit = unit;
         }
 
-        // Convert to base unit (feet)
         private double toBase() {
             return unit.toFeet(value);
         }
@@ -49,11 +50,15 @@ public class QuantityMeasurementApp {
         }
     }
 
-    // Main method
+    // Main Method
     public static void main(String[] args) {
-        Quantity q1 = new Quantity(1.0, LengthUnit.FEET);
-        Quantity q2 = new Quantity(12.0, LengthUnit.INCH);
+        Quantity q1 = new Quantity(1.0, LengthUnit.YARD);
+        Quantity q2 = new Quantity(3.0, LengthUnit.FEET);
+        Quantity q3 = new Quantity(36.0, LengthUnit.INCH);
+        Quantity q4 = new Quantity(1.0, LengthUnit.CENTIMETER);
 
-        System.out.println("Equal: " + q1.equals(q2));
+        System.out.println(q1.equals(q2)); // true
+        System.out.println(q1.equals(q3)); // true
+        System.out.println(q4.equals(new Quantity(0.393701, LengthUnit.INCH))); // true
     }
 }
