@@ -1,6 +1,5 @@
 public class QuantityMeasurementApp {
 
-    // Enum with conversion factors (base: FEET)
     enum LengthUnit {
         FEET(1.0),
         INCH(1.0 / 12.0),
@@ -18,7 +17,6 @@ public class QuantityMeasurementApp {
         }
     }
 
-    // Quantity Class (UC3/UC4 reused)
     static class Quantity {
         private final double value;
         private final LengthUnit unit;
@@ -35,6 +33,20 @@ public class QuantityMeasurementApp {
             return unit.toFeet(value);
         }
 
+        // 🔥 UC6 ADDITION METHOD
+        public static Quantity add(Quantity q1, Quantity q2) {
+            if (q1 == null || q2 == null) {
+                throw new IllegalArgumentException("Null values not allowed");
+            }
+
+            double sumInFeet = q1.toFeet() + q2.toFeet();
+
+            // convert result into unit of first operand
+            double resultValue = sumInFeet / q1.unit.toFeet(1.0);
+
+            return new Quantity(resultValue, q1.unit);
+        }
+
         @Override
         public boolean equals(Object obj) {
             if (this == obj) return true;
@@ -43,23 +55,18 @@ public class QuantityMeasurementApp {
             Quantity other = (Quantity) obj;
             return Double.compare(this.toFeet(), other.toFeet()) == 0;
         }
-    }
 
-    // 🔥 UC5: Conversion API
-    public static double convert(double value, LengthUnit source, LengthUnit target) {
-        if (source == null || target == null || !Double.isFinite(value)) {
-            throw new IllegalArgumentException("Invalid input for conversion");
+        @Override
+        public String toString() {
+            return "Quantity(" + value + ", " + unit + ")";
         }
-
-        double valueInFeet = source.toFeet(value);
-        return valueInFeet / target.toFeet(1.0);
     }
 
     public static void main(String[] args) {
 
-        System.out.println(convert(1.0, LengthUnit.FEET, LengthUnit.INCH));        // 12.0
-        System.out.println(convert(3.0, LengthUnit.YARD, LengthUnit.FEET));        // 9.0
-        System.out.println(convert(36.0, LengthUnit.INCH, LengthUnit.YARD));       // 1.0
-        System.out.println(convert(1.0, LengthUnit.CENTIMETER, LengthUnit.INCH));  // ~0.3937
+        Quantity q1 = new Quantity(1.0, LengthUnit.FEET);
+        Quantity q2 = new Quantity(12.0, LengthUnit.INCH);
+
+        System.out.println(Quantity.add(q1, q2)); // Quantity(2.0, FEET)
     }
 }
