@@ -1,11 +1,11 @@
 public class QuantityMeasurementApp {
 
-    // Enum with extended units (base: FEET)
+    // Enum with conversion factors (base: FEET)
     enum LengthUnit {
         FEET(1.0),
         INCH(1.0 / 12.0),
         YARD(3.0),
-        CENTIMETER(0.0328084); // 1 cm = 0.0328084 feet
+        CENTIMETER(0.0328084);
 
         private final double toFeet;
 
@@ -18,20 +18,20 @@ public class QuantityMeasurementApp {
         }
     }
 
-    // Generic Quantity Class
+    // Quantity Class (UC3/UC4 reused)
     static class Quantity {
         private final double value;
         private final LengthUnit unit;
 
         public Quantity(double value, LengthUnit unit) {
-            if (unit == null) {
-                throw new IllegalArgumentException("Unit cannot be null");
+            if (unit == null || !Double.isFinite(value)) {
+                throw new IllegalArgumentException("Invalid input");
             }
             this.value = value;
             this.unit = unit;
         }
 
-        private double toBase() {
+        private double toFeet() {
             return unit.toFeet(value);
         }
 
@@ -41,24 +41,25 @@ public class QuantityMeasurementApp {
             if (obj == null || getClass() != obj.getClass()) return false;
 
             Quantity other = (Quantity) obj;
-            return Double.compare(this.toBase(), other.toBase()) == 0;
-        }
-
-        @Override
-        public int hashCode() {
-            return Double.hashCode(toBase());
+            return Double.compare(this.toFeet(), other.toFeet()) == 0;
         }
     }
 
-    // Main Method
-    public static void main(String[] args) {
-        Quantity q1 = new Quantity(1.0, LengthUnit.YARD);
-        Quantity q2 = new Quantity(3.0, LengthUnit.FEET);
-        Quantity q3 = new Quantity(36.0, LengthUnit.INCH);
-        Quantity q4 = new Quantity(1.0, LengthUnit.CENTIMETER);
+    // 🔥 UC5: Conversion API
+    public static double convert(double value, LengthUnit source, LengthUnit target) {
+        if (source == null || target == null || !Double.isFinite(value)) {
+            throw new IllegalArgumentException("Invalid input for conversion");
+        }
 
-        System.out.println(q1.equals(q2)); // true
-        System.out.println(q1.equals(q3)); // true
-        System.out.println(q4.equals(new Quantity(0.393701, LengthUnit.INCH))); // true
+        double valueInFeet = source.toFeet(value);
+        return valueInFeet / target.toFeet(1.0);
+    }
+
+    public static void main(String[] args) {
+
+        System.out.println(convert(1.0, LengthUnit.FEET, LengthUnit.INCH));        // 12.0
+        System.out.println(convert(3.0, LengthUnit.YARD, LengthUnit.FEET));        // 9.0
+        System.out.println(convert(36.0, LengthUnit.INCH, LengthUnit.YARD));       // 1.0
+        System.out.println(convert(1.0, LengthUnit.CENTIMETER, LengthUnit.INCH));  // ~0.3937
     }
 }
